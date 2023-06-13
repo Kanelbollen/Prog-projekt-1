@@ -65,7 +65,9 @@ def dataPlot(data):
     Brochothrix = []
     xBroc = []
     #Plotting number of bacteria in a histogram
-    plt.hist(Bact,4,color = "magenta")
+    plt.hist(Bact,bins=[1,2,3,4,5],color = "magenta")
+    labels = ["Salmonella","Bacillus","Listeria","Brochothrix"]
+    #plt.set_yticklabels(labels)
     plt.title("Number of bacteria")
     plt.show()
     #Sorting data by bacteria for plot data
@@ -95,36 +97,8 @@ def dataPlot(data):
     plt.legend(["Salmonella","Bacillus","Listeria","Bronchothrix"],loc="upper right")
     plt.show()
 print(dataPlot(data))
-   #%% 
-    Salmonella = []
-    Bacillus = []
-    Listeria = []
-    Brochothrix = []
-    for i in range(len(data[0])):
-        if data[i] == 1:
-            Salmonella.append(data[:,i])
-        if data[i] == 2:
-            Bacillus.append(data[:,i])
-        if data[i] == 3:
-            Listeria.append(data[:,i])
-        if data[i] == 4:
-            Brochothrix.append(data[:,i])
-    return Bb
-print(dataPlot(data))
-#%%
-    Temperature = np.ravel(data[0,:])
-    GrowthRate = np.ravel(data[1,:])
-    plt.plot(Temperature,GrowthRate)
-    plt.title("")
-    plt.xlabel("")
-    plt.ylabel("")
-    plt.xlim([10,60])
-    plt.ylim([0,10])
-    plt.show()
 
 
-
-#%%
 val = ["Mean Temperature","Mean Growth rate","Std Temperature","Std Growth rate", "Rows", "Mean Cold Growth rate", "Mean Hot Growth rate"]
 
 statistic = val[1]
