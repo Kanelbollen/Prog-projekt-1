@@ -70,7 +70,32 @@ def dataHistogram(data):
     plt.title("Number of bacteria")
     plt.show()
     #Sorting data by bacteria for plot data
-def dataScatterplot(data):
+
+def withLines():
+    plt.plot(xSal,Salmonella, "--" ,color = "blue")
+    plt.plot(xBac,Bacillus, "--" , color = "orange")
+    plt.plot(xList,Listeria, "--" , color = "red")
+    plt.plot(xBroc,Brochothrix, "--" , color = "green")
+    plt.title("Growth rate by temperature")
+    plt.xlabel("Temperature")
+    plt.ylabel("Growth Rate")
+    plt.xlim([10,60])
+    plt.ylim([0,1.1])
+    plt.legend(["Salmonella","Bacillus","Listeria","Bronchothrix"],loc="upper right")
+    plt.show()
+def withoutLines():
+    plt.plot(xSal,Salmonella, "." ,color = "blue")
+    plt.plot(xBac,Bacillus, "." , color = "orange")
+    plt.plot(xList,Listeria, "." , color = "red")
+    plt.plot(xBroc,Brochothrix, "." , color = "green")
+    plt.title("Growth rate by temperature")
+    plt.xlabel("Temperature")
+    plt.ylabel("Growth Rate")
+    plt.xlim([10,60])
+    plt.ylim([0,1.1])
+    plt.legend(["Salmonella","Bacillus","Listeria","Bronchothrix"],loc="upper right")
+    plt.show()
+def dataScatterplot(data,k):
     sort_index = np.argsort(Temp)
     for i in range(len(sort_index)):
         SortedTemp.append(Temp[sort_index[i]])
@@ -91,19 +116,11 @@ def dataScatterplot(data):
         if SortedBact[i] == 4:
             Brochothrix.append(SortedGrowth[i])
             xBroc.append(SortedTemp[i])
-    
+    if k == 0:
+        withoutLines()
+    elif k == 1:
+        withLines()
     #Plotting growth rate by temperature for the four types of bacteria
-    plt.plot(xSal,Salmonella,"-b")
-    plt.plot(xBac,Bacillus,"-", color = "orange")
-    plt.plot(xList,Listeria,"-r")
-    plt.plot(xBroc,Brochothrix,"-g")
-    plt.title("Growth rate by temperature")
-    plt.xlabel("Temperature")
-    plt.ylabel("Growth Rate")
-    plt.xlim([10,60])
-    plt.ylim([0,1.1])
-    plt.legend(["Salmonella","Bacillus","Listeria","Bronchothrix"],loc="upper right")
-    plt.show()
 
 # Function for Statistics
 
@@ -157,7 +174,7 @@ def displayMenu(options):
 # DEFINITIONS
 val = ["Mean Temperature","Mean Growth rate","Std Temperature","Std Growth rate", "Rows", "Mean Cold Growth rate", "Mean Hot Growth rate","Return"]
 menuItems = ["Load Data", "Filter Data", "Show Statistics", "Generate Diagrams", "Quit"]
-menuDiagram = ["Number of Bacteria","Growth Rate by Temperature","Show both","Return"]
+menuDiagram = ["Number of Bacteria","Growth Rate by Temperature (without connecting lines)","Growth Rate by Temperature (with connecting lines)","Show all three","Return"]
 arr = [menuItems,val,menuDiagram]
 n = 0
 data = dataLoad("test.txt",0)
@@ -226,15 +243,17 @@ while True:
         if choice == 1:
             print(dataHistogram(data)) # Prints histogram of number of bacteria
         elif choice == 2:
-            print(dataScatterplot(data)) # Prints scatterplot of growth rate by temperature
+            print(dataScatterplot(data,0)) # Prints scatterplot of growth rate by temperature
         elif choice == 3:
+            print(dataScatterplot(data,1)) # Prints scatterplot of growth rate by temperature with lines
+        elif choice == 4:
             # Prints both
             print(dataHistogram(data))
-            print(dataScatterplot(data))
+            print(dataScatterplot(data,0))
+            print(dataScatterplot(data,1))
         
         # Returns to main menu
-        elif choice == 4:
+        elif choice == 5:
             n = 0
     if n == 3: # So we can close the program
         break
-
