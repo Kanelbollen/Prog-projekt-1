@@ -181,25 +181,26 @@ SortedBact = []
 
 #FINAL LOOP
 while True:
-    while n == 0:
-    # Display menu options and ask user to choose a menu item
-        choice = displayMenu(menuItems)
-        if choice == 1:
-            n = 0
-            print(dataLoad("test.txt",1))
-        elif choice == 2:
-            n = 0
-            print("Adam")
-        elif choice == 3:
-            n = 1
-        elif choice == 4:
-            n = 2
-        elif choice == 5:
-             n = 3
 
-    while n == 1:
-        choice = displayMenu(val)
-            
+    while n == 0: # Main menu
+        choice = displayMenu(menuItems) # Displays main menu
+        if choice == 1:
+            n = 0 # Stays in the main menu
+            print(dataLoad("test.txt",1)) #Prints Places of error in file
+        elif choice == 2:
+            n = 0 # Stays in the main menu
+            print("Adam") # Prints "Adam"
+        elif choice == 3:
+            n = 1 # Changes to statistics menu
+        elif choice == 4:
+            n = 2 # Changes to graph menu
+        elif choice == 5:
+             n = 3 # Closes the program
+
+    while n == 1: # Statistics menu
+        choice = displayMenu(val) # Displays statistics menu
+        
+        # Prints values of the chosen choice
         if choice == 1:
             print(dataStatistics(data,val[0]))
         elif choice == 2:
@@ -214,18 +215,26 @@ while True:
             print(dataStatistics(data,val[5]))
         elif choice == 7:
             print(dataStatistics(data,val[6]))
+        
+        # Returns you to main menu
         elif choice == 8:
             n = 0
-    while n == 2:
-        choice = displayMenu(menuDiagram)
+    
+    while n == 2: # Graph menu
+
+        choice = displayMenu(menuDiagram) # Displays graph menu
         if choice == 1:
-            print(dataHistogram(data))
+            print(dataHistogram(data)) # Prints histogram of number of bacteria
         elif choice == 2:
-            print(dataScatterplot(data))
+            print(dataScatterplot(data)) # Prints scatterplot of growth rate by temperature
         elif choice == 3:
+            # Prints both
             print(dataHistogram(data))
             print(dataScatterplot(data))
+        
+        # Returns to main menu
         elif choice == 4:
             n = 0
-    if n == 3:
+    if n == 3: # So we can close the program
         break
+
