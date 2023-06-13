@@ -166,19 +166,29 @@ xList = []
 Brochothrix = []
 xBroc = []
 
+
+
 #FINAL LOOP
-
 while True:
-# Display menu options and ask user to choose a menu item
-    choice = displayMenu(menuItems)
-    if choice == 1:
-        print(dataLoad("test.txt",1))
+    while n == 0:
+    # Display menu options and ask user to choose a menu item
+        choice = displayMenu(menuItems)
+        if choice == 1:
+            n = 0
+            print(dataLoad("test.txt",1))
+        elif choice == 2:
+            n = 0
+            print("Adam")
+        elif choice == 3:
+            n = 1
+        elif choice == 4:
+            n = 2
+        elif choice == 5:
+             n = 3
 
-    elif choice == 2:
-        print("Adam")
-    elif choice == 3:
+    while n == 1:
         choice = displayMenu(val)
-        
+            
         if choice == 1:
             print(dataStatistics(data,val[0]))
         elif choice == 2:
@@ -194,8 +204,8 @@ while True:
         elif choice == 7:
             print(dataStatistics(data,val[6]))
         elif choice == 8:
-            choice = displayMenu(menuItems)
-    elif choice == 4:
+            n = 0
+    while n == 2:
         choice = displayMenu(menuDiagram)
         if choice == 1:
             print(dataHistogram(data))
@@ -205,6 +215,6 @@ while True:
             print(dataHistogram(data))
             print(dataScatterplot(data))
         elif choice == 4:
-            choice = displayMenu(menuItems)
-    elif choice == 5:
-        break 
+            n = 0
+    if n == 3:
+        break
