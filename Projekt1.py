@@ -71,24 +71,32 @@ def dataHistogram(data):
     plt.show()
     #Sorting data by bacteria for plot data
 def dataScatterplot(data):
+    sort_index = np.argsort(Temp)
+    for i in range(len(sort_index)):
+        SortedTemp.append(Temp[sort_index[i]])
+        SortedGrowth.append(Growth[sort_index[i]])
+        SortedBact.append(Bact[sort_index[i]])
+    
+    #Sorting data by bacteria for plot data
     for i in range(len(Bact)):
-        if Bact[i] == 1:
-            Salmonella.append(Growth[i])
-            xSal.append(Temp[i])
-        if Bact[i] == 2:
-            Bacillus.append(Growth[i])
-            xBac.append(Temp[i])
-        if Bact[i] == 3:
-            Listeria.append(Growth[i])
-            xList.append(Temp[i])
-        if Bact[i] == 4:
-            Brochothrix.append(Growth[i])
-            xBroc.append(Temp[i])
-        #Plotting growth rate by temperature for the four types of bacteria
-    plt.plot(xSal,Salmonella,"b.")
-    plt.plot(xBac,Bacillus,".", color = "orange")
-    plt.plot(xList,Listeria,"r.")
-    plt.plot(xBroc,Brochothrix,"g.")
+        if SortedBact[i] == 1:
+            Salmonella.append(SortedGrowth[i])
+            xSal.append(SortedTemp[i])
+        if SortedBact[i] == 2:
+            Bacillus.append(SortedGrowth[i])
+            xBac.append(SortedTemp[i])
+        if SortedBact[i] == 3:
+            Listeria.append(SortedGrowth[i])
+            xList.append(SortedTemp[i])
+        if SortedBact[i] == 4:
+            Brochothrix.append(SortedGrowth[i])
+            xBroc.append(SortedTemp[i])
+    
+    #Plotting growth rate by temperature for the four types of bacteria
+    plt.plot(xSal,Salmonella,"-b")
+    plt.plot(xBac,Bacillus,"-", color = "orange")
+    plt.plot(xList,Listeria,"-r")
+    plt.plot(xBroc,Brochothrix,"-g")
     plt.title("Growth rate by temperature")
     plt.xlabel("Temperature")
     plt.ylabel("Growth Rate")
@@ -154,6 +162,7 @@ arr = [menuItems,val,menuDiagram]
 n = 0
 data = dataLoad("test.txt",0)
 # Plot def
+#Sorting data into categories
 Temp = np.ravel(data[0,:])
 Growth = np.ravel(data[1,:])
 Bact = np.ravel(data[2,:])
@@ -165,7 +174,9 @@ Listeria = []
 xList = []
 Brochothrix = []
 xBroc = []
-
+SortedTemp = []
+SortedGrowth = []
+SortedBact = []
 
 
 #FINAL LOOP
