@@ -57,6 +57,27 @@ def dataLoad(filename,g):
         return "Error in function variable"
 
 
+#FILTER
+
+def dataFilter(data, Bacteria, Growthrange):
+    data = np.ravel(data)
+    data = np.array([[data[0::3]], [data[1::3]],[data[2::3]]])
+    GrowthFilter = data[:,(data[1,:] <= Growthmax) & (data[1,:] >= Growthmin)] 
+    if FilterType[:] == ["bacteria"]:
+        for i in range(len(BacteriaTypes[0,:])):
+            if Bacteria == BacteriaTypes[0,i]: 
+                BacteriaFilter = data[:,data[2,:] == i+1]
+        Filter = BacteriaFilter
+        #GrowthFilter = data[:,Growth <= Growthmax or Growth >= Growthmin]
+    if FilterType[:] == ["growth rate"]:
+        Filter = GrowthFilter
+    if FilterType[:] == ["bacteria","growth rate"] or FilterType[:] == ["growth rate","bacteria"]:
+        for i in range(len(BacteriaTypes[0,:])):
+            if Bacteria == BacteriaTypes[0,i]: 
+                BacteriaFilter = GrowthFilter[:,GrowthFilter[2,:] == i+1]
+        Filter = BacteriaFilter
+    return Filter
+
 # Function for plotting diagrams
 
 def dataSort(data):
@@ -174,6 +195,12 @@ menuData = ["Assign File","Return"]
 n = 0
 data = []
 Adam = 1
+Growthmin = 0
+Growthmax = 0
+FilterType = 0
+BacteriaType = 0
+Growthrange = np.array([float(Growthmin),float(Growthmax)])
+BacteriaTypes = np.array([["salmonella enterica","bacillus", "listeria", " brochothrix thermosphacta"],[1,2,3,4]])
 # Plot def
 #Sorting data into categories
 Salmonella = []
@@ -200,8 +227,27 @@ while True:
         elif choice == 2:
             n = 0 # Stays in the main menu
             #i = random.randint(0,len(Woof)-1)
-            #print(Woof[i]) # Prints "Adam"
-            #print(L)
+            print("Bacteria filter or growth rate filter")
+            FilterType = input("Choose filter types: ").lower().split(" and ")
+            if FilterType[:] == ["bacteria"]:
+                print(BacteriaTypes[0,:])
+                Bacteria = input("Choose bacteria types: ").lower()
+            if FilterType[:] == ["growth rate"]:
+                Growthmin = float(input("Choose minimum growth rate value: "))
+                Growthmax = float(input("Choose maximum growth rate value: "))
+                if Growthmin < 0 or Growthmax < Growthmin:
+                    print("invalid growth rate. Growth rate must be larger than 0 and minimum must be less the maximum")
+            if FilterType[:] == ["bacteria","growth rate"] or FilterType[:] == ["growth rate","bacteria"] :
+                Bacteria = input("Choose bacteria types: ").lower()
+                Growthmin = float(input("Choose minimum growthrate value: "))
+                Growthmax = float(input("Choose maximum growthrate value: "))
+            else: 
+                "invalid input"
+            Growthrange = np.array([float(Growthmin),float(Growthmax)])
+            BacteriaTypes = np.array([["salmonella enterica","bacillus", "listeria", " brochothrix thermosphacta"],[1,2,3,4]])
+            print(dataFilter(dataLoad(L,0), Bacteria, Growthrange))
+            
+            
         elif choice == 3:
             if len(data) == 0:
                 print("Assign file first") 
