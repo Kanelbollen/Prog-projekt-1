@@ -4,6 +4,7 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt 
 import os
+import random
 
 # FUNCTIONS
 
@@ -48,9 +49,6 @@ def dataLoad(filename,g):
             dataError.append("Error in line {}, Bacteria is out of range".format(j))
         else:
             data.append([N[j,0],N[j,1],N[j,2]])    
-            
-    data = np.ravel(data)
-    data = np.array([[data[0::3]], [data[1::3]],[data[2::3]]])
     if g == 0:
         return data
     elif g == 1:
@@ -59,21 +57,36 @@ def dataLoad(filename,g):
         return "Error in function variable"
 
 
+#FILTER
+def GrowthFilter(Growth,Temp,lowerBound,upperBound): 
+    for i in range(np.size(Growth)):
+        if (lowerBound < Growth[i] < upperBound):
+            Growth[i] = Growth[i]
+            Temp[i] = Temp[i]
+        else :
+            Growth[i] = 0
+            Temp[i] = 0
+        Growth = Growth[Growth > 0]
+        Temp = Temp[Temp > 0]
+    return Growth,Temp
 # Function for plotting diagrams
 
-def dataHistogram(data):
+def dataSort(data,Growthmin,Growthmax):
+    # Plot def
     #Sorting data into categories
-    #Plotting number of bacteria in a histogram
-    Bact = np.ravel(data[2,:])
-    plt.hist(Bact,bins=[0.5,1.5,2.5,3.5,4.5],color = "blue")
-    #Constructs correct legends
-    labels = ["","Salmonella","Bacillus","Listeria","Brochothrix"]
-    plt.xticks(range(len(labels)),labels, size = 'small')
-    plt.title("Number of bacteria")
-    plt.show()
-    #Sorting data by bacteria for plot data
-
-def dataScatterplot(data,k):
+    Salmonella = []
+    xSal = []
+    Bacillus = []
+    xBac = []
+    Listeria = []
+    xList = []
+    Brochothrix = []
+    xBroc = []
+    SortedTemp = []
+    SortedGrowth = []
+    SortedBact = []
+    data = np.ravel(data)
+    data = np.array([[data[0::3]], [data[1::3]],[data[2::3]]])
     Temp = np.ravel(data[0,:])
     Growth = np.ravel(data[1,:])
     Bact = np.ravel(data[2,:])
@@ -97,22 +110,75 @@ def dataScatterplot(data,k):
         if SortedBact[i] == 4:
             Brochothrix.append(SortedGrowth[i])
             xBroc.append(SortedTemp[i])
-    plt.plot(xSal,Salmonella, k ,color = "blue")
-    plt.plot(xBac,Bacillus, k , color = "orange")
-    plt.plot(xList,Listeria, k , color = "red")
-    plt.plot(xBroc,Brochothrix, k , color = "green")
-    plt.title("Growth rate by temperature")
+    if Growthmin and Growthmax != "":
+        Salmonella = GrowthFilter(Salmonella,xSal,Growthmin,Growthmax)
+        Bacillus = GrowthFilter(Bacillus,xBac,Growthmin,Growthmax)
+        Listeria = GrowthFilter(Listeria,xList,Growthmin,Growthmax)
+        Brochothrix = GrowthFilter(Brochothrix,xBroc,Growthmin,Growthmax)
+    return Salmonella, xSal, Bacillus, xBac, Listeria, xList, Brochothrix, xBroc
+
+def dataHistogram(data):
+    #Sorting data into categories
+    #Plotting number of bacteria in a histogram
+    data = np.ravel(data)
+    data = np.array([[data[0::3]], [data[1::3]],[data[2::3]]])
+    Bact = np.ravel(data[2,:])
+    plt.hist(Bact,bins=[0.5,1.5,2.5,3.5,4.5],color = "blue")
+    #Constructs correct legends
+    labels = ["","Salmonella","Bacillus","Listeria","Brochothrix"]
+    plt.xticks(range(len(labels)),labels, size = 'small')
+    plt.title("Number of bacteria with {:d}".format(Adam))
+    plt.show()
+    #Sorting data by bacteria for plot data
+
+def dataScatterplot(sortedData,m,k):
+    if m == 0:
+        xSal = sortedData[1]
+        Salmonella = sortedData[0]
+        plt.plot(xSal,Salmonella, k ,color = "blue")
+        plt.legend(["Salmonella"],loc="upper right")
+    elif m == 1:
+        xBac = sortedData[1]
+        Bacillus= sortedData[0]
+        plt.plot(xBac,Bacillus, k , color = "orange")
+        plt.legend(["Bacillus"],loc="upper right")
+    elif m == 2:
+        xList = sortedData[1]
+        Listeria = sortedData[0]
+        plt.plot(xList,Listeria, k , color = "red")
+        plt.legend(["Listeria"],loc="upper right")
+    elif m == 3:
+        xBroc = sortedData[1]
+        Brochothrix = sortedData[0]
+        plt.plot(xBroc,Brochothrix, k , color = "green")
+        plt.legend(["Brochothrix"],loc="upper right")
+    else:
+        xSal = sortedData[1]
+        Salmonella = sortedData[0]
+        plt.plot(xSal,Salmonella, k ,color = "blue")
+        xBac = sortedData[3]
+        Bacillus= sortedData[2]
+        plt.plot(xBac,Bacillus, k , color = "orange")
+        xList = sortedData[5]
+        Listeria = sortedData[4]
+        plt.plot(xList,Listeria, k , color = "red")
+        xBroc = sortedData[7]
+        Brochothrix = sortedData[6]
+        plt.plot(xBroc,Brochothrix, k , color = "green")
+        plt.legend(["Salmonella","Bacillus","Listeria","Brochothrix"],loc="upper right")
+    plt.title("Growth rate by temperature with {:d}".format(Adam))
     plt.xlabel("Temperature")
     plt.ylabel("Growth Rate")
     plt.xlim([10,60])
     plt.ylim([0,1.1])
-    plt.legend(["Salmonella","Bacillus","Listeria","Bronchothrix"],loc="upper right")
     plt.show()
     #Plotting growth rate by temperature for the four types of bacteria
 
 # Function for Statistics
 
 def dataStatistics(data, statistic):
+    data = np.ravel(data)
+    data = np.array([[data[0::3]], [data[1::3]],[data[2::3]]])
     Temperature = np.ravel(data[0,:])
     GrowthRate = np.ravel(data[1,:])
     #print(Temperature)
@@ -164,22 +230,16 @@ val = ["Mean Temperature","Mean Growth rate","Std Temperature","Std Growth rate"
 menuItems = ["Load Data", "Filter Data", "Show Statistics", "Generate Diagrams", "Quit"]
 menuDiagram = ["Number of Bacteria","Growth Rate by Temperature (without connecting lines)","Growth Rate by Temperature (with connecting lines)","Show all three","Return"]
 menuData = ["Assign File","Return"]
+menuFilter = ["Bacteria", "Growth Rate","Return"]
+menuBacteria = ["Salmonella Enterica","Bacillus", "Listeria", "Brochothrix Thermosphacta","ALL OF THEM!!!"]
 n = 0
 data = []
-# Plot def
-#Sorting data into categories
+Adam = 1
+Growthmin = 0
+Growthmax = 0
+m = 5
 
-Salmonella = []
-xSal = []
-Bacillus = []
-xBac = []
-Listeria = []
-xList = []
-Brochothrix = []
-xBroc = []
-SortedTemp = []
-SortedGrowth = []
-SortedBact = []
+
 
 
 #FINAL LOOP
@@ -190,20 +250,22 @@ while True:
         if choice == 1:
             n = 1 # Stays in the main menu
         elif choice == 2:
-            n = 0 # Stays in the main menu
-            print("Adam") # Prints "Adam"
-        elif choice == 3:
-            if data == 0:
+            if len(data) == 0:
                 print("Assign file first") 
             else:
-                n = 2 # Changes to statistics menu
+                n = 2
+        elif choice == 3:
+            if len(data) == 0:
+                print("Assign file first") 
+            else:
+                n = 3 # Changes to statistics menu
         elif choice == 4:
-            if data.all() == 0:
+            if len(data) == 0:
                 print("Assign file first")
             else:
-                n = 3 # Changes to graph menu
+                n = 4 # Changes to graph menu
         elif choice == 5:
-             n = 4 # Closes the program
+             n = 5 # Closes the program
     while n == 1:
         choice = displayMenu(menuData)
         if choice == 1:
@@ -216,6 +278,7 @@ while True:
                     os.chdir(directory)
                     if os.path.exists(filename):
                         data = dataLoad(filename,0)
+                        L = dataSort(data,"","")
                         print(dataLoad(filename,1))
                         n = 0
                 else:
@@ -227,12 +290,46 @@ while True:
                 data = dataLoad(filename,0)
                 print(dataLoad(filename,1))
                 n = 0
+                L = dataSort(data,"","")
         elif choice == 2:
             n = 0
-
+    while n == 2:
+        choice = displayMenu(menuFilter)
+        if choice == 1:
+            choice = displayMenu(menuBacteria)
+            if choice == 1:
+                L = dataSort(data,"","")[0:2]
+                m = 0
+                print(L)
+            elif choice == 2:
+                L = dataSort(data,"","")[2:4]
+                m = 1
+                print(L)
+            elif choice == 3:
+                L = dataSort(data,"","")[4:6]
+                m = 2
+                print(L)
+            elif choice == 4:
+                L = dataSort(data,"","")[6:8]
+                m = 3
+                print(L)
+            elif choice == 5:
+                m = 4
+                L = dataSort(data,"","")
+            n = 0
+        elif choice == 2:
+            Growthmin = float(input("Choose minimum growth rate value: "))
+            Growthmax = float(input("Choose maximum growth rate value: "))
+            if Growthmin < 0 or Growthmax < Growthmin:
+                print("invalid growth rate. Growth rate must be larger than 0 and minimum must be less the maximum")
+                n = 2
+            else: 
+                n = 0
+        elif choice == 3:
+            n = 0
 
             
-    while n == 2: # Statistics menu
+    while n == 3: # Statistics menu
         choice = displayMenu(val) # Displays statistics menu
         
         # Prints values of the chosen choice
@@ -250,31 +347,30 @@ while True:
             print(dataStatistics(data,val[5]))
         elif choice == 7:
             print(dataStatistics(data,val[6]))
-        
+        if choice != 8:
+            print("With {:d}".format(Adam))
         # Returns you to main menu
         elif choice == 8:
             n = 0
     
-    while n == 3: # Graph menu
+    while n == 4: # Graph menu
 
         choice = displayMenu(menuDiagram) # Displays graph menu
         if choice == 1:
             print(dataHistogram(data)) # Prints histogram of number of bacteria
         elif choice == 2:
-            print(dataScatterplot(data,".")) # Prints scatterplot of growth rate by temperature
+            print(dataScatterplot(L,m,".")) # Prints scatterplot of growth rate by temperature
         elif choice == 3:
-            plt.clf()
-            print(dataScatterplot(data,"--")) # Prints scatterplot of growth rate by temperature with lines
+            print(dataScatterplot(L,m,"--")) # Prints scatterplot of growth rate by temperature with lines
         elif choice == 4:
             # Prints both
-            plt.clf()
             print(dataHistogram(data))
-            print(dataScatterplot(data,"."))
-            print(dataScatterplot(data,"--"))
+            print(dataScatterplot(L,m,"."))
+            print(dataScatterplot(L,m,"--"))
 
         
         # Returns to main menu
         elif choice == 5:
             n = 0
-    if n == 4: # So we can close the program
+    if n == 5: # So we can close the program
         break
