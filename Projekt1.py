@@ -165,7 +165,7 @@ menuItems = ["Load Data", "Filter Data", "Show Statistics", "Generate Diagrams",
 menuDiagram = ["Number of Bacteria","Growth Rate by Temperature (without connecting lines)","Growth Rate by Temperature (with connecting lines)","Show all three","Return"]
 menuData = ["Assign File","Return"]
 n = 0
-data = 0
+data = []
 # Plot def
 #Sorting data into categories
 
@@ -193,15 +193,15 @@ while True:
             n = 0 # Stays in the main menu
             print("Adam") # Prints "Adam"
         elif choice == 3:
-            if data != 0:
+            if data == 0:
+                print("Assign file first") 
+            else:
                 n = 2 # Changes to statistics menu
-            else:
-                print("Assign file first")
         elif choice == 4:
-            if data != 0:
-                n = 3 # Changes to graph menu
-            else:
+            if data.all() == 0:
                 print("Assign file first")
+            else:
+                n = 3 # Changes to graph menu
         elif choice == 5:
              n = 4 # Closes the program
     while n == 1:
