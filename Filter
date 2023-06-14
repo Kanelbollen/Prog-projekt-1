@@ -1,0 +1,35 @@
+
+FilterType = input("Choose filter types: ").lower().split(" and ")
+if FilterType[:] == ["bacteria"]:
+    Bacteria = input("Choose bacteria types: ").lower()
+if FilterType[:] == ["growth rate"]:
+    Growthmin = float(input("Choose minimum growth rate value: "))
+    Growthmax = float(input("Choose maximum growth rate value: "))
+    if Growthmin < 0 or Growthmax < Growthmin:
+        print("invalid growth rate. Growth rate must be larger than 0 and minimum must be less the maximum")
+if FilterType[:] == ["bacteria","growth rate"] or FilterType[:] == ["growth rate","bacteria"] :
+    Bacteria = input("Choose bacteria types: ").lower()
+    Growthmin = float(input("Choose minimum growthrate value: "))
+    Growthmax = float(input("Choose maximum growthrate value: "))
+else: 
+    "invalid input"
+    
+Growthrange = np.array([float(Growthmin),float(Growthmax)])
+BacteriaTypes = np.array([["salmonella enterica","bacillus", "listeria", " brochothrix thermosphacta"],[1,2,3,4]])
+
+def dataFilter(data, Bacteria, Growthrange):
+    GrowthFilter = data[:,(data[1,:] <= Growthmax) & (data[1,:] >= Growthmin)] 
+    if FilterType[:] == ["bacteria"]:
+        for i in range(len(BacteriaTypes[0,:])):
+            if Bacteria == BacteriaTypes[0,i]: 
+                BacteriaFilter = data[:,data[2,:] == i+1]
+        Filter = BacteriaFilter
+        #GrowthFilter = data[:,Growth <= Growthmax or Growth >= Growthmin]
+    if FilterType[:] == ["growth rate"]:
+        Filter = GrowthFilter
+    if FilterType[:] == ["bacteria","growth rate"] or FilterType[:] == ["growth rate","bacteria"]:
+        for i in range(len(BacteriaTypes[0,:])):
+            if Bacteria == BacteriaTypes[0,i]: 
+                BacteriaFilter = GrowthFilter[:,GrowthFilter[2,:] == i+1]
+        Filter = BacteriaFilter
+    return Filter
