@@ -115,14 +115,13 @@ def dataSort(data,Growthmin,Growthmax):
         Bacillus = GrowthFilter(Bacillus,xBac,Growthmin,Growthmax)
         Listeria = GrowthFilter(Listeria,xList,Growthmin,Growthmax)
         Brochothrix = GrowthFilter(Brochothrix,xBroc,Growthmin,Growthmax)
-    return Salmonella, xSal, Bacillus, xBac, Listeria, xList, Brochothrix, xBroc
+    Bact = [np.ones(len(Salmonella)),2 * np.ones(len(Bacillus)), 3 * np.ones(len(Listeria)),4 * np.ones(len(Brochothrix))]
+    return Salmonella, xSal, Bacillus, xBac, Listeria, xList, Brochothrix, xBroc, Bact
 
 def dataHistogram(data):
     #Sorting data into categories
     #Plotting number of bacteria in a histogram
-    data = np.ravel(data)
-    data = np.array([[data[0::3]], [data[1::3]],[data[2::3]]])
-    Bact = np.ravel(data[2,:])
+    Bact = data
     plt.hist(Bact,bins=[0.5,1.5,2.5,3.5,4.5],color = "blue")
     #Constructs correct legends
     labels = ["","Salmonella","Bacillus","Listeria","Brochothrix"]
@@ -137,17 +136,17 @@ def dataScatterplot(sortedData,m,k):
         Salmonella = sortedData[0]
         plt.plot(xSal,Salmonella, k ,color = "blue")
         plt.legend(["Salmonella"],loc="upper right")
-    elif m == 1:
+    elif m == 2:
         xBac = sortedData[1]
         Bacillus= sortedData[0]
         plt.plot(xBac,Bacillus, k , color = "orange")
         plt.legend(["Bacillus"],loc="upper right")
-    elif m == 2:
+    elif m == 4:
         xList = sortedData[1]
         Listeria = sortedData[0]
         plt.plot(xList,Listeria, k , color = "red")
         plt.legend(["Listeria"],loc="upper right")
-    elif m == 3:
+    elif m == 6:
         xBroc = sortedData[1]
         Brochothrix = sortedData[0]
         plt.plot(xBroc,Brochothrix, k , color = "green")
@@ -176,31 +175,28 @@ def dataScatterplot(sortedData,m,k):
 
 # Function for Statistics
 
-def dataStatistics(data, statistic):
-    data = np.ravel(data)
-    data = np.array([[data[0::3]], [data[1::3]],[data[2::3]]])
-    Temperature = np.ravel(data[0,:])
-    GrowthRate = np.ravel(data[1,:])
-    #print(Temperature)
-    #print(GrowthRate)
+def dataStatistics(data,m,p, statistic):
+    if p == 1 and m == 8:
+        data = O
+        m = 2
     ValidInput = ["Mean Temperature","Mean Growth rate","Std Temperature","Std Growth rate", "Rows", "Mean Cold Growth rate", "Mean Hot Growth rate"]
     if statistic not in ValidInput:
         result = "Invalid input, please type valid input"
     else:
         if statistic == ValidInput[0]:
-            result = np.mean(Temperature)
+            result = np.mean(data[p])
         elif statistic == ValidInput[1]:
-            result = np.mean(GrowthRate)
+            result = np.mean(data[m])
         elif statistic == ValidInput[2]:
-            result = np.std(Temperature)
+            result = np.std(data[p])
         elif statistic == ValidInput[3]:
-            result = np.std(GrowthRate)
+            result = np.std(data[m])
         elif statistic == ValidInput[4]:
-            result = len(Temperature)
+            result = len(data[p])
         elif statistic == ValidInput[5]:
-            result = np.mean(GrowthRate[Temperature < 20])
+            result = np.mean(data[m][data[p] < 20])
         elif statistic == ValidInput[6]:
-            result = np.mean(GrowthRate[Temperature > 50])
+            result = np.mean(data[m][data[p] > 50])
     return result
 
 # Funktioner til menu
@@ -237,7 +233,8 @@ data = []
 Adam = 1
 Growthmin = 0
 Growthmax = 0
-m = 5
+m = ""
+O = []
 
 
 
@@ -300,23 +297,31 @@ while True:
             if choice == 1:
                 L = dataSort(data,"","")[0:2]
                 m = 0
-                print(L)
+                M = dataSort(data,"","")[8][0]
+                p = 1
             elif choice == 2:
                 L = dataSort(data,"","")[2:4]
-                m = 1
-                print(L)
+                m = 2
+                M = dataSort(data,"","")[8][1]
+                p = 3
             elif choice == 3:
                 L = dataSort(data,"","")[4:6]
-                m = 2
-                print(L)
+                m = 4
+                M = dataSort(data,"","")[8][2]
+                p = 5
             elif choice == 4:
                 L = dataSort(data,"","")[6:8]
-                m = 3
-                print(L)
+                m = 6
+                M = dataSort(data,"","")[8][3]
+                p = 7
             elif choice == 5:
-                m = 4
                 L = dataSort(data,"","")
+                M = np.concatenate(dataSort(data,"","")[8], axis = 0)
+                O = [np.concatenate([L[0],L[2],L[4],L[6]]),np.concatenate([L[1],L[3],L[5],L[7]])]
+                p = 1
+                m = 8
             n = 0
+
         elif choice == 2:
             Growthmin = float(input("Choose minimum growth rate value: "))
             Growthmax = float(input("Choose maximum growth rate value: "))
@@ -334,19 +339,19 @@ while True:
         
         # Prints values of the chosen choice
         if choice == 1:
-            print(dataStatistics(data,val[0]))
+            print(dataStatistics(data,m,p,val[0]))
         elif choice == 2:
-            print(dataStatistics(data,val[1]))
+            print(dataStatistics(data,m,p,val[1]))
         elif choice == 3:
-            print(dataStatistics(data,val[2]))
+            print(dataStatistics(data,m,p,val[2]))
         elif choice == 4:
-            print(dataStatistics(data,val[3]))
+            print(dataStatistics(data,m,p,val[3]))
         elif choice == 5:
-            print(dataStatistics(data,val[4]))
+            print(dataStatistics(data,m,p,val[4]))
         elif choice == 6:
-            print(dataStatistics(data,val[5]))
+            print(dataStatistics(data,m,p,val[5]))
         elif choice == 7:
-            print(dataStatistics(data,val[6]))
+            print(dataStatistics(data,m,p,val[6]))
         if choice != 8:
             print("With {:d}".format(Adam))
         # Returns you to main menu
@@ -357,7 +362,8 @@ while True:
 
         choice = displayMenu(menuDiagram) # Displays graph menu
         if choice == 1:
-            print(dataHistogram(data)) # Prints histogram of number of bacteria
+            print(dataHistogram(M)) # Prints histogram of number of bacteria
+
         elif choice == 2:
             print(dataScatterplot(L,m,".")) # Prints scatterplot of growth rate by temperature
         elif choice == 3:
