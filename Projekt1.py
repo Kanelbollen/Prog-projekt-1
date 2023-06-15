@@ -203,7 +203,9 @@ def inputNumber(prompt):
             num = float(input(prompt))
             break
         except ValueError:
+            print("Wrong Input, type the number of the menu you want to select")
             pass
+
     return num
     
 #Function for menu and menu control
@@ -287,13 +289,18 @@ while True:
         if l == 0:
             choice = displayMenu(menuInterval)
             if choice == 1:
-                Growthmin = float(input("Choose minimum growth rate value: "))
-                Growthmax = float(input("Choose maximum growth rate value: "))
+                while True:
+                    try:
+                        Growthmin = float(input("Choose minimum growth rate value: "))
+                        Growthmax = float(input("Choose maximum growth rate value: "))
+                        break
+                    except ValueError or Growthmin < 0 or Growthmax < Growthmin:
+                        print("Growth interval accepts only numbers, such as 0.1")
+                        pass
                 if Growthmin < 0 or Growthmax < Growthmin:
                     print("invalid growth rate. Growth rate must be larger than 0 and minimum must be less the maximum")
                     n = 2
-                else: 
-                    l = 1
+                l = 1
             elif choice == 2:
                 Growthmin,Growthmax = "",""
                 l = 1
