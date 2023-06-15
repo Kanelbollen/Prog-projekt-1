@@ -59,6 +59,16 @@ def dataLoad(filename,g):
 
 #FILTER
 def GrowthFilter(Growth,Temp,lowerBound,upperBound): 
+    Growth[Growth >= upperBound] = 0
+    Growth[Growth <= lowerBound] = 0
+    Temp[Growth >= upperBound] = 0
+    Temp[Growth <= lowerBound] = 0
+    Growth = np.delete(Growth,Growth==0)
+    Temp = np.delete(Temp,Temp==0)
+    return Growth, Temp
+
+    
+    """
     for i in range(np.size(Growth)):
         if (lowerBound < Growth[i] < upperBound):
             Growth[i] = Growth[i]
@@ -70,7 +80,7 @@ def GrowthFilter(Growth,Temp,lowerBound,upperBound):
         Temp = Temp[Temp > 0]
     return Growth,Temp
 # Function for plotting diagrams
-
+"""
 def dataSort(data,Growthmin,Growthmax):
     # Plot def
     #Sorting data into categories
@@ -111,10 +121,11 @@ def dataSort(data,Growthmin,Growthmax):
             Brochothrix.append(SortedGrowth[i])
             xBroc.append(SortedTemp[i])
     if Growthmin and Growthmax != "":
-        Salmonella = GrowthFilter(Salmonella,xSal,Growthmin,Growthmax)
-        Bacillus = GrowthFilter(Bacillus,xBac,Growthmin,Growthmax)
-        Listeria = GrowthFilter(Listeria,xList,Growthmin,Growthmax)
-        Brochothrix = GrowthFilter(Brochothrix,xBroc,Growthmin,Growthmax)
+        Salmonella,xSal = GrowthFilter(np.array(Salmonella),np.array(xSal),Growthmin,Growthmax)[0],GrowthFilter(np.array(Salmonella),np.array(xSal),Growthmin,Growthmax)[1]
+        Bacillus,xBac = GrowthFilter(np.array(Bacillus),np.array(xBac),Growthmin,Growthmax)[0],GrowthFilter(np.array(Bacillus),np.array(xBac),Growthmin,Growthmax)[1]
+        Listeria = GrowthFilter(np.array(Listeria),np.array(xList),Growthmin,Growthmax)[0], GrowthFilter(np.array(Bacillus),np.array(xBac),Growthmin,Growthmax)[1]
+        Brochothrix = GrowthFilter(np.array(Brochothrix),np.array(xBroc),Growthmin,Growthmax)[0],GrowthFilter(np.array(Brochothrix),np.array(xBroc),Growthmin,Growthmax)[1]
+
     Bact = [np.ones(len(Salmonella)),2 * np.ones(len(Bacillus)), 3 * np.ones(len(Listeria)),4 * np.ones(len(Brochothrix))]
     return Salmonella, xSal, Bacillus, xBac, Listeria, xList, Brochothrix, xBroc, Bact
 
@@ -126,7 +137,7 @@ def dataHistogram(data):
     #Constructs correct legends
     labels = ["","Salmonella","Bacillus","Listeria","Brochothrix"]
     plt.xticks(range(len(labels)),labels, size = 'small')
-    plt.title("Number of bacteria with {:d}".format(Adam))
+    plt.title("Number of bacteria with filter {filter} and interval {min}-{max}".format(filter = Adam[m],min = Growthmin, max = Growthmax))
     plt.show()
     #Sorting data by bacteria for plot data
 
@@ -165,7 +176,7 @@ def dataScatterplot(sortedData,m,k):
         Brochothrix = sortedData[6]
         plt.plot(xBroc,Brochothrix, k , color = "green")
         plt.legend(["Salmonella","Bacillus","Listeria","Brochothrix"],loc="upper right")
-    plt.title("Growth rate by temperature with {:d}".format(Adam))
+    plt.title("Growth rate by temperature  with filter {filter} and interval {min}-{max}".format(filter = Adam[m],min = Growthmin, max = Growthmax))
     plt.xlabel("Temperature")
     plt.ylabel("Growth Rate")
     plt.xlim([10,60])
@@ -175,28 +186,26 @@ def dataScatterplot(sortedData,m,k):
 
 # Function for Statistics
 
-def dataStatistics(data,m,p, statistic):
-    if p == 1 and m == 8:
-        data = O
-        m = 2
+def dataStatistics(data, statistic):
     ValidInput = ["Mean Temperature","Mean Growth rate","Std Temperature","Std Growth rate", "Rows", "Mean Cold Growth rate", "Mean Hot Growth rate"]
     if statistic not in ValidInput:
         result = "Invalid input, please type valid input"
     else:
         if statistic == ValidInput[0]:
-            result = np.mean(data[p])
+            result = np.mean(data[1])
         elif statistic == ValidInput[1]:
-            result = np.mean(data[m])
+            result = np.mean(data[0])
         elif statistic == ValidInput[2]:
-            result = np.std(data[p])
+            result = np.std(data[1])
         elif statistic == ValidInput[3]:
-            result = np.std(data[m])
+            result = np.std(data[0])
         elif statistic == ValidInput[4]:
-            result = len(data[p])
+            result = len(data[1])
         elif statistic == ValidInput[5]:
-            result = np.mean(data[m][data[p] < 20])
+            result = np.mean(data[0][data[1] < 20])
         elif statistic == ValidInput[6]:
-            result = np.mean(data[m][data[p] > 50])
+            result = np.mean(data[0][data[1] > 50])
+
     return result
 
 # Funktioner til menu
@@ -228,16 +237,13 @@ menuDiagram = ["Number of Bacteria","Growth Rate by Temperature (without connect
 menuData = ["Assign File","Return"]
 menuFilter = ["Bacteria", "Growth Rate","Return"]
 menuBacteria = ["Salmonella Enterica","Bacillus", "Listeria", "Brochothrix Thermosphacta","ALL OF THEM!!!"]
+menuInterval = ["Assign interval","Clear interval","Return"]
 n = 0
 data = []
-Adam = 1
-Growthmin = 0
-Growthmax = 0
-m = ""
-O = []
-
-
-
+Adam = ["Salmonella Enterica","","Bacillus", "","Listeria","", "Brochothrix Thermosphacta","No Filter"]
+Growthmin = ""
+Growthmax = ""
+m = 7
 
 #FINAL LOOP
 while True:
@@ -266,7 +272,6 @@ while True:
     while n == 1:
         choice = displayMenu(menuData)
         if choice == 1:
-            j = 0
             filename = input("Enter filename: ")
             if os.path.exists(filename) == False:
                 directory = input("Enter path: ")
@@ -287,7 +292,11 @@ while True:
                 data = dataLoad(filename,0)
                 print(dataLoad(filename,1))
                 n = 0
-                L = dataSort(data,"","")
+                L = dataSort(data,Growthmin,Growthmax)
+                M = np.concatenate(dataSort(data,Growthmin,Growthmax)[8], axis = 0)
+                L1 = [np.concatenate([L[0],L[2],L[4],L[6]]),np.concatenate([L[1],L[3],L[5],L[7]])]
+                print(L)
+                print(np.mean(L[1]))
         elif choice == 2:
             n = 0
     while n == 2:
@@ -295,41 +304,44 @@ while True:
         if choice == 1:
             choice = displayMenu(menuBacteria)
             if choice == 1:
-                L = dataSort(data,"","")[0:2]
+                L1 = dataSort(data,Growthmin,Growthmax)[0:2]
                 m = 0
-                M = dataSort(data,"","")[8][0]
-                p = 1
+                M = dataSort(data,Growthmin,Growthmax)[8][0]
             elif choice == 2:
-                L = dataSort(data,"","")[2:4]
+                L1 = dataSort(data,Growthmin,Growthmax)[2:4]
                 m = 2
-                M = dataSort(data,"","")[8][1]
-                p = 3
+                M = dataSort(data,Growthmin,Growthmax)[8][1]
             elif choice == 3:
-                L = dataSort(data,"","")[4:6]
+                L1 = dataSort(data,Growthmin,Growthmax)[4:6]
                 m = 4
-                M = dataSort(data,"","")[8][2]
-                p = 5
+                M = dataSort(data,Growthmin,Growthmax)[8][2]
             elif choice == 4:
-                L = dataSort(data,"","")[6:8]
+                L1 = dataSort(data,Growthmin,Growthmax)[6:8]
                 m = 6
-                M = dataSort(data,"","")[8][3]
-                p = 7
-            elif choice == 5:
-                L = dataSort(data,"","")
-                M = np.concatenate(dataSort(data,"","")[8], axis = 0)
-                O = [np.concatenate([L[0],L[2],L[4],L[6]]),np.concatenate([L[1],L[3],L[5],L[7]])]
-                p = 1
-                m = 8
+                M = dataSort(data,Growthmin,Growthmax)[8][3]
+            else:
+                L = dataSort(data,Growthmin,Growthmax)
+                M = np.concatenate(dataSort(data,Growthmin,Growthmax)[8], axis = 0)
+                L1 = [np.concatenate([L[0],L[2],L[4],L[6]]),np.concatenate([L[1],L[3],L[5],L[7]])]
+                m = 7
+                print ( L)
             n = 0
 
         elif choice == 2:
-            Growthmin = float(input("Choose minimum growth rate value: "))
-            Growthmax = float(input("Choose maximum growth rate value: "))
-            if Growthmin < 0 or Growthmax < Growthmin:
-                print("invalid growth rate. Growth rate must be larger than 0 and minimum must be less the maximum")
+            choice = displayMenu(menuInterval)
+            if choice == 1:
+                Growthmin = float(input("Choose minimum growth rate value: "))
+                Growthmax = float(input("Choose maximum growth rate value: "))
+                if Growthmin < 0 or Growthmax < Growthmin:
+                    print("invalid growth rate. Growth rate must be larger than 0 and minimum must be less the maximum")
+                    n = 2
+                else: 
+                    n = 0
+            elif choice == 2:
+                Growthmin,Growthmax = "",""
+                print("Interval cleared")
+            elif choice == 3:
                 n = 2
-            else: 
-                n = 0
         elif choice == 3:
             n = 0
 
@@ -339,21 +351,21 @@ while True:
         
         # Prints values of the chosen choice
         if choice == 1:
-            print(dataStatistics(data,m,p,val[0]))
+            print(dataStatistics(L1,val[0]))
         elif choice == 2:
-            print(dataStatistics(data,m,p,val[1]))
+            print(dataStatistics(L1,val[1]))
         elif choice == 3:
-            print(dataStatistics(data,m,p,val[2]))
+            print(dataStatistics(L1,val[2]))
         elif choice == 4:
-            print(dataStatistics(data,m,p,val[3]))
+            print(dataStatistics(L1,val[3]))
         elif choice == 5:
-            print(dataStatistics(data,m,p,val[4]))
+            print(dataStatistics(L1,val[4]))
         elif choice == 6:
-            print(dataStatistics(data,m,p,val[5]))
+            print(dataStatistics(L1,val[5]))
         elif choice == 7:
-            print(dataStatistics(data,m,p,val[6]))
+            print(dataStatistics(L1,val[6]))
         if choice != 8:
-            print("With {:d}".format(Adam))
+            print("With filter {filter}".format(filter = Adam[m]))
         # Returns you to main menu
         elif choice == 8:
             n = 0
@@ -363,18 +375,16 @@ while True:
         choice = displayMenu(menuDiagram) # Displays graph menu
         if choice == 1:
             print(dataHistogram(M)) # Prints histogram of number of bacteria
-
         elif choice == 2:
-            print(dataScatterplot(L,m,".")) # Prints scatterplot of growth rate by temperature
+            print(L1)
+            print(dataScatterplot(L1,m,".")) # Prints scatterplot of growth rate by temperature
         elif choice == 3:
-            print(dataScatterplot(L,m,"--")) # Prints scatterplot of growth rate by temperature with lines
+            print(dataScatterplot(L1,m,"--")) # Prints scatterplot of growth rate by temperature with lines
         elif choice == 4:
             # Prints both
-            print(dataHistogram(data))
-            print(dataScatterplot(L,m,"."))
-            print(dataScatterplot(L,m,"--"))
-
-        
+            print(dataHistogram(M))
+            print(dataScatterplot(L1,m,"."))
+            print(dataScatterplot(L1,m,"--"))
         # Returns to main menu
         elif choice == 5:
             n = 0
