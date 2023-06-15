@@ -172,29 +172,40 @@ def dataScatterplot(sortedData,m,k):
 
 # Function for Statistics
 
+# Function for Statistics
+# dataStatistics returns mean values, standard deviation, row count and more
+# for temperature and growth rate
+#Input: Data from datasorted (numpy array) and statistics (string)
+#Output: result of statistical value (float)    
 def dataStatistics(data, statistic):
     ValidInput = ["Mean Temperature","Mean Growth rate","Std Temperature","Std Growth rate", "Rows", "Mean Cold Growth rate", "Mean Hot Growth rate"]
     if statistic not in ValidInput:
         result = "Invalid input, please type valid input"
     else:
+        #Mean temperature
         if statistic == ValidInput[0]:
             result = np.mean(data[1])
+        #Mean growth rate
         elif statistic == ValidInput[1]:
             result = np.mean(data[0])
+        #Std temperature
         elif statistic == ValidInput[2]:
             result = np.std(data[1])
+        #Std growth rate
         elif statistic == ValidInput[3]:
             result = np.std(data[0])
+        #Rows
         elif statistic == ValidInput[4]:
             result = len(data[1])
+        #Mean of cold growth rate
         elif statistic == ValidInput[5]:
             result = np.mean(data[0][data[1] < 20])
+        #Mean of hot growth rate
         elif statistic == ValidInput[6]:
             result = np.mean(data[0][data[1] > 50])
-
     return result
 
-# Funktioner til menu
+# Functions for menu
 
 #Function for buttonprompt
 def inputNumber(prompt):
@@ -205,9 +216,8 @@ def inputNumber(prompt):
         except ValueError:
             print("Wrong Input, type the number of the menu you want to select")
             pass
-
     return num
-    
+
 #Function for menu and menu control
 def displayMenu(options):
     for i in range(len(options)):
