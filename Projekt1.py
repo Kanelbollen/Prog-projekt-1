@@ -67,20 +67,6 @@ def GrowthFilter(Growth,Temp,lowerBound,upperBound):
     Temp = np.delete(Temp,Temp==0)
     return Growth, Temp
 
-    
-    """
-    for i in range(np.size(Growth)):
-        if (lowerBound < Growth[i] < upperBound):
-            Growth[i] = Growth[i]
-            Temp[i] = Temp[i]
-        else :
-            Growth[i] = 0
-            Temp[i] = 0
-        Growth = Growth[Growth > 0]
-        Temp = Temp[Temp > 0]
-    return Growth,Temp
-# Function for plotting diagrams
-"""
 def dataSort(data,Growthmin,Growthmax):
     # Plot def
     #Sorting data into categories
@@ -123,8 +109,8 @@ def dataSort(data,Growthmin,Growthmax):
     if Growthmin and Growthmax != "":
         Salmonella,xSal = GrowthFilter(np.array(Salmonella),np.array(xSal),Growthmin,Growthmax)[0],GrowthFilter(np.array(Salmonella),np.array(xSal),Growthmin,Growthmax)[1]
         Bacillus,xBac = GrowthFilter(np.array(Bacillus),np.array(xBac),Growthmin,Growthmax)[0],GrowthFilter(np.array(Bacillus),np.array(xBac),Growthmin,Growthmax)[1]
-        Listeria = GrowthFilter(np.array(Listeria),np.array(xList),Growthmin,Growthmax)[0], GrowthFilter(np.array(Bacillus),np.array(xBac),Growthmin,Growthmax)[1]
-        Brochothrix = GrowthFilter(np.array(Brochothrix),np.array(xBroc),Growthmin,Growthmax)[0],GrowthFilter(np.array(Brochothrix),np.array(xBroc),Growthmin,Growthmax)[1]
+        Listeria, xList = GrowthFilter(np.array(Listeria),np.array(xList),Growthmin,Growthmax)[0], GrowthFilter(np.array(Listeria),np.array(xList),Growthmin,Growthmax)[1]
+        Brochothrix, xBroc = GrowthFilter(np.array(Brochothrix),np.array(xBroc),Growthmin,Growthmax)[0],GrowthFilter(np.array(Brochothrix),np.array(xBroc),Growthmin,Growthmax)[1]
 
     Bact = [np.ones(len(Salmonella)),2 * np.ones(len(Bacillus)), 3 * np.ones(len(Listeria)),4 * np.ones(len(Brochothrix))]
     return Salmonella, xSal, Bacillus, xBac, Listeria, xList, Brochothrix, xBroc, Bact
@@ -237,14 +223,14 @@ menuDiagram = ["Number of Bacteria","Growth Rate by Temperature (without connect
 menuData = ["Assign File","Return"]
 menuFilter = ["Bacteria", "Growth Rate","Return"]
 menuBacteria = ["Salmonella Enterica","Bacillus", "Listeria", "Brochothrix Thermosphacta","ALL OF THEM!!!"]
-menuInterval = ["Assign interval","Clear interval","Return"]
+menuInterval = ["Assign interval","No Interval","Return"]
 n = 0
 data = []
 Adam = ["Salmonella Enterica","","Bacillus", "","Listeria","", "Brochothrix Thermosphacta","No Filter"]
 Growthmin = ""
 Growthmax = ""
 m = 7
-
+l = 0
 #FINAL LOOP
 while True:
 
@@ -295,39 +281,10 @@ while True:
                 L = dataSort(data,Growthmin,Growthmax)
                 M = np.concatenate(dataSort(data,Growthmin,Growthmax)[8], axis = 0)
                 L1 = [np.concatenate([L[0],L[2],L[4],L[6]]),np.concatenate([L[1],L[3],L[5],L[7]])]
-                print(L)
-                print(np.mean(L[1]))
         elif choice == 2:
             n = 0
     while n == 2:
-        choice = displayMenu(menuFilter)
-        if choice == 1:
-            choice = displayMenu(menuBacteria)
-            if choice == 1:
-                L1 = dataSort(data,Growthmin,Growthmax)[0:2]
-                m = 0
-                M = dataSort(data,Growthmin,Growthmax)[8][0]
-            elif choice == 2:
-                L1 = dataSort(data,Growthmin,Growthmax)[2:4]
-                m = 2
-                M = dataSort(data,Growthmin,Growthmax)[8][1]
-            elif choice == 3:
-                L1 = dataSort(data,Growthmin,Growthmax)[4:6]
-                m = 4
-                M = dataSort(data,Growthmin,Growthmax)[8][2]
-            elif choice == 4:
-                L1 = dataSort(data,Growthmin,Growthmax)[6:8]
-                m = 6
-                M = dataSort(data,Growthmin,Growthmax)[8][3]
-            else:
-                L = dataSort(data,Growthmin,Growthmax)
-                M = np.concatenate(dataSort(data,Growthmin,Growthmax)[8], axis = 0)
-                L1 = [np.concatenate([L[0],L[2],L[4],L[6]]),np.concatenate([L[1],L[3],L[5],L[7]])]
-                m = 7
-                print ( L)
-            n = 0
-
-        elif choice == 2:
+        if l == 0:
             choice = displayMenu(menuInterval)
             if choice == 1:
                 Growthmin = float(input("Choose minimum growth rate value: "))
@@ -336,36 +293,62 @@ while True:
                     print("invalid growth rate. Growth rate must be larger than 0 and minimum must be less the maximum")
                     n = 2
                 else: 
-                    n = 0
+                    l = 1
             elif choice == 2:
                 Growthmin,Growthmax = "",""
-                print("Interval cleared")
+                l = 1
             elif choice == 3:
-                n = 2
-        elif choice == 3:
-            n = 0
-
-            
+                    n = 0
+        elif l == 1:
+            choice = displayMenu(menuBacteria)
+            if choice == 1:
+                L1 = dataSort(data,Growthmin,Growthmax)[0:2]
+                L = L1
+                m = 0
+                M = dataSort(data,Growthmin,Growthmax)[8][0]
+            elif choice == 2:
+                L1= dataSort(data,Growthmin,Growthmax)[2:4]
+                L = L1
+                m = 2
+                M = dataSort(data,Growthmin,Growthmax)[8][1]
+            elif choice == 3:
+                L1= dataSort(data,Growthmin,Growthmax)[4:6]
+                L = L1
+                m = 4
+                M = dataSort(data,Growthmin,Growthmax)[8][2]
+            elif choice == 4:
+                L1 = dataSort(data,Growthmin,Growthmax)[6:8]
+                L = L1
+                m = 6
+                M = dataSort(data,Growthmin,Growthmax)[8][3]
+            else:
+                L = dataSort(data,Growthmin,Growthmax)
+                M = np.concatenate(dataSort(data,Growthmin,Growthmax)[8], axis = 0)
+                print ( L)
+                L1 = [np.concatenate([L[0],L[2],L[4],L[6]]),np.concatenate([L[1],L[3],L[5],L[7]])]
+                m = 7
+            l = 0
+            n = 0    
     while n == 3: # Statistics menu
         choice = displayMenu(val) # Displays statistics menu
         
         # Prints values of the chosen choice
         if choice == 1:
-            print(dataStatistics(L1,val[0]))
+            print(dataStatistics(np.array(L1),val[0]))
         elif choice == 2:
-            print(dataStatistics(L1,val[1]))
+            print(dataStatistics(np.array(L1),val[1]))
         elif choice == 3:
-            print(dataStatistics(L1,val[2]))
+            print(dataStatistics(np.array(L1),val[2]))
         elif choice == 4:
-            print(dataStatistics(L1,val[3]))
+            print(dataStatistics(np.array(L1),val[3]))
         elif choice == 5:
-            print(dataStatistics(L1,val[4]))
+            print(dataStatistics(np.array(L1),val[4]))
         elif choice == 6:
-            print(dataStatistics(L1,val[5]))
+            print(dataStatistics(np.array(L1),val[5]))
         elif choice == 7:
-            print(dataStatistics(L1,val[6]))
+            print(dataStatistics(np.array(L1),val[6]))
         if choice != 8:
-            print("With filter {filter}".format(filter = Adam[m]))
+            print("With filter {filter} and interval {min}-{max}".format(filter = Adam[m],min = Growthmin, max = Growthmax))
         # Returns you to main menu
         elif choice == 8:
             n = 0
@@ -376,15 +359,15 @@ while True:
         if choice == 1:
             print(dataHistogram(M)) # Prints histogram of number of bacteria
         elif choice == 2:
-            print(L1)
-            print(dataScatterplot(L1,m,".")) # Prints scatterplot of growth rate by temperature
+            print(L)
+            print(dataScatterplot(L,m,".")) # Prints scatterplot of growth rate by temperature
         elif choice == 3:
-            print(dataScatterplot(L1,m,"--")) # Prints scatterplot of growth rate by temperature with lines
+            print(dataScatterplot(L,m,"--")) # Prints scatterplot of growth rate by temperature with lines
         elif choice == 4:
             # Prints both
             print(dataHistogram(M))
-            print(dataScatterplot(L1,m,"."))
-            print(dataScatterplot(L1,m,"--"))
+            print(dataScatterplot(L,m,"."))
+            print(dataScatterplot(L,m,"--"))
         # Returns to main menu
         elif choice == 5:
             n = 0
