@@ -10,7 +10,8 @@ import random
 
 # Function for sorting data by temperature,growth rate and bacteriatype.
 # The function input is a filename and a number, either 0 or 1 which states the returnvalue as data or dataErrors for the leftout data. 
-
+#Made by Mette Hillersborg
+#Modified by Adam Jabiri
 def dataLoad(filename,g):
     #Opening and reading file to extract values
     file = open(filename, 'r')
@@ -69,6 +70,8 @@ def dataLoad(filename,g):
 
 #Interval filter for growthrate
 #Growth and Temp are both numpy arrays, while lowerBound and upperBound are float
+#Made by Buster Astrup Eriksen
+#Modified by Adam Jabiri
 def GrowthFilter(Growth,Temp,lowerBound,upperBound):
     #Turns all numbers inside Growth and Temp outside the interval lowerBound-upperBound into empty string ""
     Growth[Growth >= upperBound] = -1
@@ -82,6 +85,8 @@ def GrowthFilter(Growth,Temp,lowerBound,upperBound):
     return Growth, Temp
 
 # Function for filtering data by bacteria and growthrateinterval if the later is implementet
+#Made by Mette Hillersborg
+#Modifed by Buster Astrup Eriksen
 def dataSort(data,Growthmin,Growthmax):
     #Sorting data into categories
     #Empty list to append growthrate into the lists of bacteria names and the corresponding temperatures into the lists with x and a shortend version of the bacteria name.
@@ -135,7 +140,10 @@ def dataSort(data,Growthmin,Growthmax):
     #The Bacteriatype list is created so that the histogram works
     Bact = [np.ones(len(Salmonella)),2 * np.ones(len(Bacillus)), 3 * np.ones(len(Listeria)),4 * np.ones(len(Brochothrix))]
     return Salmonella, xSal, Bacillus, xBac, Listeria, xList, Brochothrix, xBroc, Bact
+
 #Function to create histogram of datainput as a list of the bacteriatypes
+#Made by Mette Hillersborg
+#Modified by Buster Astrup Eriksen
 def dataHistogram(data):
     # The name Bact is assigned to the inputdata
     Bact = data
@@ -146,10 +154,13 @@ def dataHistogram(data):
     plt.xticks(range(len(labels)),labels, size = 'small')
     plt.title("Number of bacteria with filter {filter} and interval {min}-{max}".format(filter = Filter[m],min = Growthmin, max = Growthmax))
     plt.show()
+
 #Function to create scatterplot with either dots or lines connecting the datapoints
 #The input of the function is an array with temperature and growth rate. 
-    #k administrates of the plot is created with dots or dash lines
-    #m is a variable for the different filters, if m is not an integer between 0 and 6, there is no filter
+#k administrates of the plot is created with dots or dash lines
+#m is a variable for the different filters, if m is not an integer between 0 and 6, there is no filter
+#Made by Mette Hillersborg
+#Modified by Buster Astrup Eriksen
 def dataScatterplot(sortedData,m,k):
     #Plots data depending on filter
     #Salmonella
@@ -205,7 +216,9 @@ def dataScatterplot(sortedData,m,k):
 # dataStatistics returns mean values, standard deviation, row count and more
 # for temperature and growth rate
 #Input: Data from datasorted (numpy array) and statistics (string)
-#Output: result of statistical value (float)    
+#Output: result of statistical value (float)   
+#Made by Adam Jabiri
+#Modified by Buster Astrup Eriksen 
 def dataStatistics(data, statistic):
     ValidInput = ["Mean Temperature","Mean Growth rate","Std Temperature","Std Growth rate", "Rows", "Mean Cold Growth rate", "Mean Hot Growth rate"]
     if statistic not in ValidInput:
@@ -228,18 +241,25 @@ def dataStatistics(data, statistic):
             result = len(data[1])
         #Mean of cold growth rate
         elif statistic == ValidInput[5]:
-            result = np.mean(data[0][data[1] < 20])
+            if len(data[0][data[1] < 20])==0:
+                result = "There are no datapoints below 20 degrees"
+            else:    
+                result = np.mean(data[0][data[1] < 20])
         #Mean of hot growth rate
         elif statistic == ValidInput[6]:
-            result = np.mean(data[0][data[1] > 50])
+            if len(data[0][data[1] > 50])==0:
+                result = "There are no datapoints above 50 degrees"
+            else:    
+                result = np.mean(data[0][data[1] > 50])
     return result
 
-# Functions for menu
-
+#Functions for menu
 #Function for buttonprompt
-# InputNumber: Takes in number and returns error message if invalid input
-# Input: number (string)
-# Output: number (float)
+#InputNumber: Takes in number and returns error message if invalid input
+#Input: number (string)
+#Output: number (float)
+#Made by Mikkel N. Schmidt, mnsc@dtu.dk, 2015
+#Modified by Mette Hillersborg
 def inputNumber(prompt):
     while True:
         #Turns input to float
@@ -257,6 +277,8 @@ def inputNumber(prompt):
 #Displaymenu: displays a numbered list of menu items
 #Input: Options (string array)
 #Output: formatted numbers and strings
+#Made by Mikkel N. Schmidt, mnsc@dtu.dk, 2015
+#Modified by Buster Astrup Eriksen
 def displayMenu(options):
     #For loop for displaying items from option
     for i in range(len(options)):
@@ -294,6 +316,8 @@ l = 0
 j = 0
 
 #FINAL LOOP
+#Made by Buster Astrup Eriksen
+#Modified by Mette Hillersborg and Adam Jabiri
 while True:
     #Main menu
     while n == 0: 
@@ -503,3 +527,26 @@ while True:
     #If true it closes the program
     if n == 5:
         break
+"""        ____,'`-, 
+      _,--'   ,/::.; 
+   ,-'       ,/::,' `---.___        ___,_ 
+   |       ,:';:/        ;'"`;"`--./ ,-^.;--. 
+   |:     ,:';,'         '         `.   ;`   `-. 
+    \:.,:::/;/ -:.                   `  | `     `-. 
+     \:::,'//__.;  ,;  ,  ,  :.`-.   :. |  ;       :. 
+      \,',';/O)^. :'  ;  :   '__` `  :::`.       .:' ) 
+      |,'  |\__,: ;      ;  '/O)`.   :::`;       ' ,' 
+           |`--''            \__,' , ::::(       ,' 
+           `    ,            `--' ,: :::,'\   ,-' 
+            | ,;         ,    ,::'  ,:::   |,' 
+            |,:        .(          ,:::|   ` 
+            ::'_   _   ::         ,::/:| 
+           ,',' `-' \   `.      ,:::/,:| 
+          | : _  _   |   '     ,::,' ::: 
+          | \ O`'O  ,',   ,    :,'   ;:: 
+           \ `-'`--',:' ,' , ,,'      :: 
+            ``:.:.__   ',-','        ::' 
+    -hrr-      `--.__, ,::.         ::' 
+                   |:  ::::.       ::' 
+                   |:  ::::::    ,::' """
+#WOOF
