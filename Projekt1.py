@@ -208,22 +208,33 @@ def dataStatistics(data, statistic):
 # Functions for menu
 
 #Function for buttonprompt
+# InputNumber: Takes in number and returns error message if invalid input
+# Input: number (string)
+# Output: number (float)
 def inputNumber(prompt):
     while True:
+        #Turns input to float
         try:
             num = float(input(prompt))
             break
+        #Ensures valid input by returning error message
         except ValueError:
             print("Wrong Input, type the number of the menu you want to select")
             pass
     return num
 
+
 #Function for menu and menu control
+#Displaymenu: displays a numbered list of menu items
+#Input: Options (string array)
+#Output: formatted numbers and strings
 def displayMenu(options):
+    #For loop for displaying items from option
     for i in range(len(options)):
         print("{:d}. {:s}".format(i+1, options[i]))
     # Get a valid menu choice
     choice = 0
+    #Ensures a valid choice input
     while not(np.any(choice == np.arange(len(options))+1)):
         choice = inputNumber("Choose your next move: ")
     return choice
@@ -348,24 +359,30 @@ while True:
             n = 0    
     while n == 3: # Statistics menu
         choice = displayMenu(val) # Displays statistics menu
-        
         # Prints values of the chosen choice
+        # Prints mean value of temperature
         if choice == 1:
             print(dataStatistics(np.array(L1),val[0]))
+        # Prints mean value of growth rate
         elif choice == 2:
             print(dataStatistics(np.array(L1),val[1]))
+        # Prints std of temperature
         elif choice == 3:
             print(dataStatistics(np.array(L1),val[2]))
+        # Prints std of growth rate
         elif choice == 4:
             print(dataStatistics(np.array(L1),val[3]))
+        # Prints number of rows
         elif choice == 5:
             print(dataStatistics(np.array(L1),val[4]))
+        # Prints mean value of cold growth rate 
         elif choice == 6:
             print(dataStatistics(np.array(L1),val[5]))
+        # Prints mean value of hot growth rate
         elif choice == 7:
             print(dataStatistics(np.array(L1),val[6]))
         if choice != 8:
-            print("With filter {filter} and interval {min}-{max}".format(filter = Adam[m],min = Growthmin, max = Growthmax))
+            print("With filter {filter} and interval {min}-{max}".format(filter = Filter[m],min = Growthmin, max = Growthmax))
         # Returns you to main menu
         elif choice == 8:
             n = 0
