@@ -71,13 +71,13 @@ def dataLoad(filename,g):
 #Growth and Temp are both numpy arrays, while lowerBound and upperBound are float
 def GrowthFilter(Growth,Temp,lowerBound,upperBound):
     #Turns all numbers inside Growth and Temp outside the interval lowerBound-upperBound into empty string ""
-    Growth[Growth >= upperBound] = ""
-    Growth[Growth <= lowerBound] = ""
-    Temp[Growth >= upperBound] = ""
-    Temp[Growth <= lowerBound] = ""
+    Growth[Growth >= upperBound] = -1
+    Growth[Growth <= lowerBound] = -1
+    Temp[Growth >= upperBound] = -1
+    Temp[Growth <= lowerBound] = -1
     #Deletes all empty strings within arrays Growth and Temp
-    Growth = np.delete(Growth,Growth=="")
-    Temp = np.delete(Temp,Temp=="")
+    Growth = np.delete(Growth,Growth==-1)
+    Temp = np.delete(Temp,Temp==-1)
     #Returns the numpy arrays Growth and Temp
     return Growth, Temp
 
@@ -144,7 +144,7 @@ def dataHistogram(data):
     #Constructs correct legends, axis names and title
     labels = ["","Salmonella","Bacillus","Listeria","Brochothrix"]
     plt.xticks(range(len(labels)),labels, size = 'small')
-    plt.title("Number of bacteria with filter {filter} and interval {min}-{max}".format(filter = Adam[m],min = Growthmin, max = Growthmax))
+    plt.title("Number of bacteria with filter {filter} and interval {min}-{max}".format(filter = Filter[m],min = Growthmin, max = Growthmax))
     plt.show()
 #Function to create scatterplot with either dots or lines connecting the datapoints
 #The input of the function is an array with temperature and growth rate. 
@@ -192,7 +192,7 @@ def dataScatterplot(sortedData,m,k):
         plt.plot(xBroc,Brochothrix, k , color = "green")
         plt.legend(["Salmonella","Bacillus","Listeria","Brochothrix"],loc="upper right")
     #Creates correct title and axis labels as well as the range of the axes
-    plt.title("Growth rate by temperature  with filter {filter} and interval {min}-{max}".format(filter = Adam[m],min = Growthmin, max = Growthmax))
+    plt.title("Growth rate by temperature  with filter {filter} and interval {min}-{max}".format(filter = Filter[m],min = Growthmin, max = Growthmax))
     plt.xlabel("Temperature")
     plt.ylabel("Growth Rate")
     plt.xlim([10,60])
