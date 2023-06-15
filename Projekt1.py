@@ -56,15 +56,18 @@ def dataLoad(filename,g):
     else:
         return "Error in function variable"
 
-
-#FILTER
-def GrowthFilter(Growth,Temp,lowerBound,upperBound): 
-    Growth[Growth >= upperBound] = 0
-    Growth[Growth <= lowerBound] = 0
-    Temp[Growth >= upperBound] = 0
-    Temp[Growth <= lowerBound] = 0
-    Growth = np.delete(Growth,Growth==0)
-    Temp = np.delete(Temp,Temp==0)
+#Interval filter for growthrate
+#Growth and Temp are both numpy arrays, while lowerBound and upperBound are float
+def GrowthFilter(Growth,Temp,lowerBound,upperBound):
+    #Turns all numbers inside Growth and Temp outside the interval lowerBound-upperBound into empty string ""
+    Growth[Growth >= upperBound] = ""
+    Growth[Growth <= lowerBound] = ""
+    Temp[Growth >= upperBound] = ""
+    Temp[Growth <= lowerBound] = ""
+    #Deletes all empty strings within arrays Growth and Temp
+    Growth = np.delete(Growth,Growth=="")
+    Temp = np.delete(Temp,Temp=="")
+    #Returns the numpy arrays Growth and Temp
     return Growth, Temp
 
 def dataSort(data,Growthmin,Growthmax):
@@ -239,7 +242,7 @@ def displayMenu(options):
         choice = inputNumber("Choose your next move: ")
     return choice
 
-# DEFINITIONS
+#Definitions for different menus
 val = ["Mean Temperature","Mean Growth rate","Std Temperature","Std Growth rate", "Rows", "Mean Cold Growth rate", "Mean Hot Growth rate","Return"]
 menuItems = ["Load Data", "Filter Data", "Show Statistics", "Generate Diagrams", "Quit"]
 menuDiagram = ["Number of Bacteria","Growth Rate by Temperature (without connecting lines)","Growth Rate by Temperature (with connecting lines)","Show all three","Return"]
@@ -247,69 +250,112 @@ menuData = ["Assign File","Return"]
 menuFilter = ["Bacteria", "Growth Rate","Return"]
 menuBacteria = ["Salmonella Enterica","Bacillus", "Listeria", "Brochothrix Thermosphacta","ALL OF THEM!!!"]
 menuInterval = ["Assign interval","No Interval","Return"]
+#Variable for changing to different menus
 n = 0
+#List for our data
 data = []
-Adam = ["Salmonella Enterica","","Bacillus", "","Listeria","", "Brochothrix Thermosphacta","No Filter"]
+#List which is used for filter names
+Filter = ["Salmonella Enterica","","Bacillus", "","Listeria","", "Brochothrix Thermosphacta","No Filter"]
+#Minimum value of growthrate
 Growthmin = ""
+#Maximum value of growthrate
 Growthmax = ""
+#Variable for the different filters, as long as it isnt inbetween 0 and 6 there is no filter
 m = 7
+#Variable for filter menu, so that no matter your choice of interval you get pushed to the bacteria filter menu.
 l = 0
+#Variable for checking if is path input that is incorrect or filename input that is incorrect
+j = 0
+
 #FINAL LOOP
 while True:
-
-    while n == 0: # Main menu
-        choice = displayMenu(menuItems) # Displays main menu
+    #Main menu
+    while n == 0: 
+        #Displays main menu
+        choice = displayMenu(menuItems)
+        #Statemenets for which input is returned
+        #If choice is not the first, the program will check if file is assigned
         if choice == 1:
-            n = 1 # Stays in the main menu
+            #Changes menu to file menu
+            n = 1
         elif choice == 2:
             if len(data) == 0:
                 print("Assign file first") 
             else:
-                n = 2
+                #Changes to filter menu
+                n = 2 
         elif choice == 3:
             if len(data) == 0:
                 print("Assign file first") 
             else:
-                n = 3 # Changes to statistics menu
+                #Changes to statistics menu
+                n = 3 
         elif choice == 4:
             if len(data) == 0:
                 print("Assign file first")
             else:
-                n = 4 # Changes to graph menu
+                #Changes to graph menu
+                n = 4
         elif choice == 5:
-             n = 5 # Closes the program
+             # Closes the program
+             n = 5
+    #Menu for loading data
     while n == 1:
+        #Displays loading data menu
         choice = displayMenu(menuData)
+        #Choice for fileassignment
         if choice == 1:
+            #File is assigned
             filename = input("Enter filename: ")
+            #If statement for checking if file is valid
             if os.path.exists(filename) == False:
+                #If file is not in the same directory as python file, directory is asked
                 directory = input("Enter path: ")
+                #Sort data with the file and directory assigned
                 if os.path.exists(directory):
                     j = 1
                     os.chdir(directory)
                     if os.path.exists(filename):
+                        #Loads data and sorts data
                         data = dataLoad(filename,0)
-                        L = dataSort(data,"","")
+                        L = dataSort(data,Growthmin,Growthmax)
+                        M = np.concatenate(dataSort(data,Growthmin,Growthmax)[8], axis = 0)
+                        L1 = [np.concatenate([L[0],L[2],L[4],L[6]]),np.concatenate([L[1],L[3],L[5],L[7]])]
+                        #Prints all errors in data
+                        print("There are errors in your file, so i removed them. Here they are: ")
                         print(dataLoad(filename,1))
+                        #Returns you to main menu
                         n = 0
                 else:
+                    #j Checks where theres an error
                     if j == 0:
                         print("Invalid Path")
                     elif j == 1:
                         print("Invalid Filename")
             else:
+                #If the file is in directory it starts loading data
                 data = dataLoad(filename,0)
+                #Prints errors
+                print("There are errors in your file, so i removed them. Here they are: ")
                 print(dataLoad(filename,1))
-                n = 0
+                #Sorts data
                 L = dataSort(data,Growthmin,Growthmax)
                 M = np.concatenate(dataSort(data,Growthmin,Growthmax)[8], axis = 0)
                 L1 = [np.concatenate([L[0],L[2],L[4],L[6]]),np.concatenate([L[1],L[3],L[5],L[7]])]
+                #Returns to main menu
+                n = 0
+        #Return to main menu
         elif choice == 2:
             n = 0
+    #Filter menu
     while n == 2:
+        #By default l is 0 and so interval menu is default
         if l == 0:
+            #Menu for changing interval
             choice = displayMenu(menuInterval)
+            #Assign interval
             if choice == 1:
+                #Asks for floats, if they are not it prints an error message
                 while True:
                     try:
                         Growthmin = float(input("Choose minimum growth rate value: "))
@@ -318,92 +364,116 @@ while True:
                     except ValueError or Growthmin < 0 or Growthmax < Growthmin:
                         print("Growth interval accepts only numbers, such as 0.1")
                         pass
+                #If the interval is invalid it returns you to the interval menu and prints an error message
                 if Growthmin < 0 or Growthmax < Growthmin:
                     print("invalid growth rate. Growth rate must be larger than 0 and minimum must be less the maximum")
                     n = 2
+                #l is changed to 1 so we change to the menu with bacterial filters
                 l = 1
+
+            #No interval / Clear interval
             elif choice == 2:
+                #Assigns Growthmin and Growthmax to what the code defines as N/A
                 Growthmin,Growthmax = "",""
+                #l is changed to 1 so we change to the menu with bacterial filters
                 l = 1
+            #Return to main menu
             elif choice == 3:
                     n = 0
+        #Menu for bacterial filters
         elif l == 1:
+            #Displays bacteria menu
             choice = displayMenu(menuBacteria)
+            #Salmonella
             if choice == 1:
+                #L1 is a list for statistics
                 L1 = dataSort(data,Growthmin,Growthmax)[0:2]
+                #L is a list for scatterplots
                 L = L1
+                #m is a marker for the filter
                 m = 0
+                #M is a list for histograms
                 M = dataSort(data,Growthmin,Growthmax)[8][0]
+            #Bacillus
             elif choice == 2:
                 L1= dataSort(data,Growthmin,Growthmax)[2:4]
                 L = L1
                 m = 2
                 M = dataSort(data,Growthmin,Growthmax)[8][1]
+            #Listeria
             elif choice == 3:
                 L1= dataSort(data,Growthmin,Growthmax)[4:6]
                 L = L1
                 m = 4
                 M = dataSort(data,Growthmin,Growthmax)[8][2]
+            #Brochothrix
             elif choice == 4:
                 L1 = dataSort(data,Growthmin,Growthmax)[6:8]
                 L = L1
                 m = 6
                 M = dataSort(data,Growthmin,Growthmax)[8][3]
+            #All of them
             else:
+                #We need different lists to make 'All of them' work as they come in different formats and are used in different ways
                 L = dataSort(data,Growthmin,Growthmax)
                 M = np.concatenate(dataSort(data,Growthmin,Growthmax)[8], axis = 0)
-                print ( L)
                 L1 = [np.concatenate([L[0],L[2],L[4],L[6]]),np.concatenate([L[1],L[3],L[5],L[7]])]
+                #m just needs to be asigned anything else but 0,2,4,6
                 m = 7
+            #We change l to 0 again so that if we enter the menu we choose interval first
             l = 0
-            n = 0    
-    while n == 3: # Statistics menu
-        choice = displayMenu(val) # Displays statistics menu
-        # Prints values of the chosen choice
-        # Prints mean value of temperature
+            #We return to main menu
+            n = 0 
+   
+    #Statistics menu
+    while n == 3:
+        #Displays statistics menu
+        choice = displayMenu(val)
+
+        #Prints values of the chosen choice
         if choice == 1:
             print(dataStatistics(np.array(L1),val[0]))
-        # Prints mean value of growth rate
         elif choice == 2:
             print(dataStatistics(np.array(L1),val[1]))
-        # Prints std of temperature
         elif choice == 3:
             print(dataStatistics(np.array(L1),val[2]))
-        # Prints std of growth rate
         elif choice == 4:
             print(dataStatistics(np.array(L1),val[3]))
-        # Prints number of rows
         elif choice == 5:
             print(dataStatistics(np.array(L1),val[4]))
-        # Prints mean value of cold growth rate 
         elif choice == 6:
             print(dataStatistics(np.array(L1),val[5]))
-        # Prints mean value of hot growth rate
         elif choice == 7:
             print(dataStatistics(np.array(L1),val[6]))
+        #Prints which filter is used so long choice isnt return
         if choice != 8:
-            print("With filter {filter} and interval {min}-{max}".format(filter = Filter[m],min = Growthmin, max = Growthmax))
-        # Returns you to main menu
+            print("With bacterialfilter {filter} and growthrateinterval {min}-{max}".format(filter = Filter[m],min = Growthmin, max = Growthmax))
+        #Returns you to main menu
         elif choice == 8:
             n = 0
     
-    while n == 4: # Graph menu
+    #Graph menu
+    while n == 4:
+        #Displays graph menu
+        choice = displayMenu(menuDiagram) 
 
-        choice = displayMenu(menuDiagram) # Displays graph menu
         if choice == 1:
-            print(dataHistogram(M)) # Prints histogram of number of bacteria
+            #Prints histogram of number of bacteria
+            print(dataHistogram(M)) 
         elif choice == 2:
-            print(L)
-            print(dataScatterplot(L,m,".")) # Prints scatterplot of growth rate by temperature
+            #Prints scatterplot of growth rate by temperature
+            print(dataScatterplot(L,m,".")) 
         elif choice == 3:
-            print(dataScatterplot(L,m,"--")) # Prints scatterplot of growth rate by temperature with lines
+            #Prints scatterplot of growth rate by temperature with lines
+            print(dataScatterplot(L,m,"--"))
         elif choice == 4:
-            # Prints both
+            #Prints alle three
             print(dataHistogram(M))
             print(dataScatterplot(L,m,"."))
             print(dataScatterplot(L,m,"--"))
         # Returns to main menu
         elif choice == 5:
             n = 0
-    if n == 5: # So we can close the program
+    #If true it closes the program
+    if n == 5:
         break
