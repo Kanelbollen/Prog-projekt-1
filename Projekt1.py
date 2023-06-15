@@ -8,12 +8,14 @@ import random
 
 # FUNCTIONS
 
-# Function for sorting data
+# Function for sorting data by temperature,growth rate and bacteriatype.
+# The function input is a filename and a number, either 0 or 1 which states the returnvalue as data or dataErrors for the leftout data. 
 
 def dataLoad(filename,g):
     #Opening and reading file to extract values
     file = open(filename, 'r')
     data = file.read()
+    #Empty lists to store the sorted data from file by temperature, growthrate and bacteriatype
     Temperature = []
     Growthrate = []
     Bacteria = []
@@ -21,18 +23,25 @@ def dataLoad(filename,g):
     M = data.split("\n")
     #Creating matrix with all values in Nx3 matrix
     for i in range(len(M)-1):
+            #Appending the values to the specified lists
             Temperature.append(M[i].split(" ")[0])
             Growthrate.append(M[i].split(" ")[1])
             Bacteria.append(M[i].split(" ")[2])
+            #Converting lists to contain only numbers in one list
             T = [float(i) for i in np.ravel(Temperature)]
             G = [float(i) for i in np.ravel(Growthrate)]
             B = [float(i) for i in np.ravel(Bacteria)]
+    #Adding the individual lists to a 3xN matrix with temperature, growthrate and bacteriatype as the rows
     N = [T,G,B]
+    # Transposing the 3xN matrix to a Nx3 matrix
     N = np.transpose(N)
-    #Excluding faulty data and printing error code
+    # Empty list to store the final sorted data
     data = []
+    #Empty list to store the line index of the faulty lines
     FaultyLines = []
+    #Empty list to store the complete error message of the excluded faulty lines
     dataError = []
+    #Excluding faulty data and creating error code
     for j in range(len(M)-1):
         if N[j,0] < 10 or 60 < N[j,0]:
             np.delete(N,j,0)
@@ -42,19 +51,21 @@ def dataLoad(filename,g):
             np.delete(N,j,0)
             FaultyLines.append(j)
             dataError.append("Error in line {}, Growthrate is out of range".format(j))
-
         elif 1 > N[j,2] or N[j,2] > 4:
             np.delete(N,j, 0)
             FaultyLines.append(j)
             dataError.append("Error in line {}, Bacteria is out of range".format(j))
         else:
             data.append([N[j,0],N[j,1],N[j,2]])    
+    #returns the final sorted data without the faulty lines
     if g == 0:
         return data
+    #returns the error message of the faulty lines
     elif g == 1:
         return dataError
     else:
         return "Error in function variable"
+
 
 #Interval filter for growthrate
 #Growth and Temp are both numpy arrays, while lowerBound and upperBound are float
@@ -70,9 +81,10 @@ def GrowthFilter(Growth,Temp,lowerBound,upperBound):
     #Returns the numpy arrays Growth and Temp
     return Growth, Temp
 
+# Function for filtering data by bacteria and growthrateinterval if the later is implementet
 def dataSort(data,Growthmin,Growthmax):
-    # Plot def
     #Sorting data into categories
+    #Empty list to append growthrate into the lists of bacteria names and the corresponding temperatures into the lists with x and a shortend version of the bacteria name.
     Salmonella = []
     xSal = []
     Bacillus = []
@@ -81,21 +93,26 @@ def dataSort(data,Growthmin,Growthmax):
     xList = []
     Brochothrix = []
     xBroc = []
+    #Lists to store data after the temperature has been sorted from least to greatest for smoother plots
     SortedTemp = []
     SortedGrowth = []
     SortedBact = []
+    #Extracting datavalues from the datainput
     data = np.ravel(data)
     data = np.array([[data[0::3]], [data[1::3]],[data[2::3]]])
+    #Deviding the data into arrays of temperature, growthrate and bacteriatype
     Temp = np.ravel(data[0,:])
     Growth = np.ravel(data[1,:])
     Bact = np.ravel(data[2,:])
+    # Creating a list of the indexes for the temperature when least to greatest
     sort_index = np.argsort(Temp)
+    # Appending data to lists in an order such that the temperature list is sorted from least to greatest.
     for i in range(len(sort_index)):
         SortedTemp.append(Temp[sort_index[i]])
         SortedGrowth.append(Growth[sort_index[i]])
         SortedBact.append(Bact[sort_index[i]])
     
-    #Sorting data by bacteria for plot data
+    #Sorting data by bacteriatype for plot and statastics data
     for i in range(len(Bact)):
         if SortedBact[i] == 1:
             Salmonella.append(SortedGrowth[i])
@@ -109,48 +126,57 @@ def dataSort(data,Growthmin,Growthmax):
         if SortedBact[i] == 4:
             Brochothrix.append(SortedGrowth[i])
             xBroc.append(SortedTemp[i])
+    # If a growth interval is given, the data is filtered so only value sets in the given interval is continued
     if Growthmin and Growthmax != "":
         Salmonella,xSal = GrowthFilter(np.array(Salmonella),np.array(xSal),Growthmin,Growthmax)[0],GrowthFilter(np.array(Salmonella),np.array(xSal),Growthmin,Growthmax)[1]
         Bacillus,xBac = GrowthFilter(np.array(Bacillus),np.array(xBac),Growthmin,Growthmax)[0],GrowthFilter(np.array(Bacillus),np.array(xBac),Growthmin,Growthmax)[1]
         Listeria, xList = GrowthFilter(np.array(Listeria),np.array(xList),Growthmin,Growthmax)[0], GrowthFilter(np.array(Listeria),np.array(xList),Growthmin,Growthmax)[1]
         Brochothrix, xBroc = GrowthFilter(np.array(Brochothrix),np.array(xBroc),Growthmin,Growthmax)[0],GrowthFilter(np.array(Brochothrix),np.array(xBroc),Growthmin,Growthmax)[1]
-
+    #The Bacteriatype list is created so that the histogram works
     Bact = [np.ones(len(Salmonella)),2 * np.ones(len(Bacillus)), 3 * np.ones(len(Listeria)),4 * np.ones(len(Brochothrix))]
     return Salmonella, xSal, Bacillus, xBac, Listeria, xList, Brochothrix, xBroc, Bact
-
+#Function to create histogram of datainput as a list of the bacteriatypes
 def dataHistogram(data):
-    #Sorting data into categories
-    #Plotting number of bacteria in a histogram
+    # The name Bact is assigned to the inputdata
     Bact = data
+    # Creates histogram where input data is sorted into bacteriatypes 1, 2, 3 or 4
     plt.hist(Bact,bins=[0.5,1.5,2.5,3.5,4.5],color = "blue")
-    #Constructs correct legends
+    #Constructs correct legends, axis names and title
     labels = ["","Salmonella","Bacillus","Listeria","Brochothrix"]
     plt.xticks(range(len(labels)),labels, size = 'small')
     plt.title("Number of bacteria with filter {filter} and interval {min}-{max}".format(filter = Adam[m],min = Growthmin, max = Growthmax))
     plt.show()
-    #Sorting data by bacteria for plot data
-
+#Function to create scatterplot with either dots or lines connecting the datapoints
+#The input of the function is an array with temperature and growth rate. 
+    #k administrates of the plot is created with dots or dash lines
+    #m is a variable for the different filters, if m is not an integer between 0 and 6, there is no filter
 def dataScatterplot(sortedData,m,k):
+    #Plots data depending on filter
+    #Salmonella
     if m == 0:
         xSal = sortedData[1]
         Salmonella = sortedData[0]
         plt.plot(xSal,Salmonella, k ,color = "blue")
         plt.legend(["Salmonella"],loc="upper right")
+    #Bacillus
     elif m == 2:
         xBac = sortedData[1]
         Bacillus= sortedData[0]
         plt.plot(xBac,Bacillus, k , color = "orange")
         plt.legend(["Bacillus"],loc="upper right")
+    #Listeria
     elif m == 4:
         xList = sortedData[1]
         Listeria = sortedData[0]
         plt.plot(xList,Listeria, k , color = "red")
         plt.legend(["Listeria"],loc="upper right")
+    #Brochothrix"
     elif m == 6:
         xBroc = sortedData[1]
         Brochothrix = sortedData[0]
         plt.plot(xBroc,Brochothrix, k , color = "green")
         plt.legend(["Brochothrix"],loc="upper right")
+    # If no filter is added then all data for the bacteriatypes are plotted
     else:
         xSal = sortedData[1]
         Salmonella = sortedData[0]
@@ -165,13 +191,13 @@ def dataScatterplot(sortedData,m,k):
         Brochothrix = sortedData[6]
         plt.plot(xBroc,Brochothrix, k , color = "green")
         plt.legend(["Salmonella","Bacillus","Listeria","Brochothrix"],loc="upper right")
+    #Creates correct title and axis labels as well as the range of the axes
     plt.title("Growth rate by temperature  with filter {filter} and interval {min}-{max}".format(filter = Adam[m],min = Growthmin, max = Growthmax))
     plt.xlabel("Temperature")
     plt.ylabel("Growth Rate")
     plt.xlim([10,60])
     plt.ylim([0,1.1])
     plt.show()
-    #Plotting growth rate by temperature for the four types of bacteria
 
 # Function for Statistics
 
